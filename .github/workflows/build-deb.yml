@@ -2,7 +2,7 @@ name: Build Valkey JSON Debian Package
 
 on:
   push:
-    branches: [1.0]
+    branches: [unstable]
   pull_request:
     branches: [1.0]
 
