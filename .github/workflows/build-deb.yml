@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake .. -DVALKEY_VERSION=8.0
+          cmake .. -DVALKEY_VERSION=8.0 -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF
           make -j$(nproc) VERBOSE=1
 
       - name: Package into .deb
