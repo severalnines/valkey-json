@@ -35,8 +35,8 @@ jobs:
             clang \
             clangd \
             clang-tidy \
-            clang-format \
             python3-pytest
+            #            clang-format \
       - name: Set up build directory
         run: |
           ./build.sh
