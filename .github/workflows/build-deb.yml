@@ -34,9 +34,17 @@ jobs:
             dh-make \
             clang \
             clangd \
-            clang-tidy \
-            python3-pytest
-            #            clang-format \
+            clang-tidy
+            #            clang-format \
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Verify uv installation
+        run: uv --version
+
       - name: Set up build directory
         run: |
           ./build.sh

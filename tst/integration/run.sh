@@ -34,9 +34,12 @@ if [[ ! -f "${BINARY_PATH}" ]] ; then
 fi
 
 if [[ $1 == "test" ]] ; then
+    if [ ! -d "$SCRIPT_DIR/venv" ]; then
+      source "$SCRIPT_DIR/venv/bin/activate"
+    fi
     if [ ! -z "${ASAN_BUILD}" ]; then
         echo "Running tests and checking for memory leaks"
-        python -m pytest --capture=sys --html=report.html --cache-clear -v ${TEST_FLAG} ./ ${TEST_PATTERN} 2>&1 | tee test_output.tmp
+        python3 -m pytest --capture=sys --html=report.html --cache-clear -v ${TEST_FLAG} ./ ${TEST_PATTERN} 2>&1 | tee test_output.tmp
         # Check for memory leaks in the output
         if grep -q "LeakSanitizer: detected memory leaks" test_output.tmp; then
             RED='\033[0;31m'
@@ -58,8 +61,9 @@ if [[ $1 == "test" ]] ; then
         fi
         rm test_output.tmp
     else
-        python -m pytest --html=report.html --cache-clear -v ${TEST_FLAG} ./ ${TEST_PATTERN}
+        python3 -m pytest --html=report.html --cache-clear -v ${TEST_FLAG} ./ ${TEST_PATTERN}
     fi
+    deactivate
 else
     echo "Unknown target: $1"
     exit 1

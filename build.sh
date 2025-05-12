@@ -46,7 +46,14 @@ cd $SCRIPT_DIR
 REQUIREMENTS_FILE="requirements.txt"
 
 # Check if pip is available
-if command -v pip > /dev/null 2>&1; then
+if command -v uv > /dev/null 2>&1; then
+    echo "Using uv to create venv and install packages..."
+    if [ ! -d "$SCRIPT_DIR/venv" ]; then
+      uv venv "$SCRIPT_DIR/venv"
+    fi
+    source "$SCRIPT_DIR/venv/bin/activate"
+    uv pip install -r "$SCRIPT_DIR/$REQUIREMENTS_FILE"
+elif command -v pip > /dev/null 2>&1; then
     echo "Using pip to install packages..."
     pip install -r "$SCRIPT_DIR/$REQUIREMENTS_FILE"
 # Check if pip3 is available
