@@ -49,7 +49,7 @@ REQUIREMENTS_FILE="requirements.txt"
 if command -v uv > /dev/null 2>&1; then
     echo "Using uv to create venv and install packages..."
     if [ ! -d "$SCRIPT_DIR/venv" ]; then
-      uv venv "$SCRIPT_DIR/venv"
+      uv venv "$SCRIPT_DIR/venv" --system-site-packages
     fi
     source "$SCRIPT_DIR/venv/bin/activate"
     uv pip install -r "$SCRIPT_DIR/$REQUIREMENTS_FILE"
