@@ -1,0 +1,77 @@
+name: Build Valkey JSON RPM Package
+
+on:
+  push:
+    branches:
+      - 'unstable'
+      - 'update_pytest'
+      - 'rpm_build'
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - '1.0'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@3542bca2639a428e1796aaa6a2ffef0c0f575566 #v3.1.4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y universe
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            libgtest-dev \
+            ninja-build \
+            libssl-dev \
+            pkg-config \
+            clang \
+            clangd \
+            clang-tidy \
+            rpm 
+
+      - name: Set up build directory
+        run: |
+          ./build.sh
+
+      - name: Setup RPM build environment
+        run: |
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          cp valkey-json.spec ~/rpmbuild/SPECS/
+
+      - name: Prepare RPM build source
+        run: |
+          cp build/src/libjson.so ~/rpmbuild/SOURCES/
+
+      - name: Build RPM package
+        run: |
+          rpmbuild -bb ~/rpmbuild/SPECS/valkey-json.spec
+
+      - name: Move RPM to workspace
+        run: |
+          find ~/rpmbuild/RPMS -name "*.rpm" -exec cp {} valkey-json-1.0.0.rpm \;
+
+      - name: Upload .rpm artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: valkey-json-rpm
+          path: valkey-json-1.0.0.rpm
