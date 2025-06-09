@@ -75,3 +75,37 @@ jobs:
         with:
           name: valkey-json-rpm
           path: valkey-json-1.0.0.rpm
+  verify-install:
+    needs: build
+    runs-on: ubuntu-22.04
+    container: rockylinux:9
+
+    steps:
+      - name: Download .rpm artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: valkey-json-rpm
+
+      - name: Install package
+        run: |
+          dnf localinstall -y ./valkey-json-1.0.0.rpm
+
+      - name: Verify installation
+        run: |
+          echo "Checking package installation status:"
+          if rpm -q valkey-json; then
+            echo "Package valkey-json is successfully installed"
+          else
+            echo "Package not properly installed in RPM database"
+            rpm -qa | grep valkey
+            exit 1
+          fi
+
+          echo "Checking for library file:"
+          if [ -f "/usr/lib/valkey/libjson.so" ]; then
+            echo "Library file exists at expected location"
+            ls -la /usr/lib/valkey/libjson.so
+          else
+            echo "Library file not found at expected location"
+            exit 1
+          fi
