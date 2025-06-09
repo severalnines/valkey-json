@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'unstable'
-      - 'update_pytest'
+      - 'installability_check'
     tags:
       - 'v*.*.*'
   pull_request:
