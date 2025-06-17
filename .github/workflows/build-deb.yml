@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'unstable'
-      - 'update_pytest'
+      - 'installability_check'
     tags:
       - 'v*.*.*'
   pull_request:
@@ -77,4 +77,37 @@ jobs:
         with:
           name: valkey-json-deb
           path: valkey-json_1.0.0_amd64.deb
+  verify-install:
+    needs: build
+    runs-on: ubuntu-22.04
 
+    steps:
+      - name: Download .deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: valkey-json-deb
+
+      - name: Install package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ./valkey-json_1.0.0_amd64.deb
+
+      - name: Verify installation
+        run: |
+          echo "Checking package installation status:"
+          if dpkg -l valkey-json | grep -q "^ii"; then
+            echo "Package valkey-json is successfully installed"
+          else
+            echo "Package not properly installed in dpkg database"
+            dpkg -l | grep valkey
+            exit 1
+          fi
+
+          echo "Checking for library file:"
+          if [ -f "/usr/lib/valkey/libjson.so" ]; then
+            echo "Library file exists at expected location"
+            ls -la /usr/lib/valkey/libjson.so
+          else
+            echo "Library file not found at expected location"
+            exit 1
+          fi
